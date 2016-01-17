@@ -1,0 +1,88 @@
+{% extends 'layout.html' %}
+
+{% block sidebar %}{% endblock %}
+
+{% block body %}
+    <form class="form-horizontal" action="/" method="post">
+        <div class="form-group">
+            <label id="x-admin-firstname" class="control-label col-sm-2">Firstname:</label>
+            <div class="col-md-5">
+                <div class="input-group">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-edit"></span></div>
+                    <input type="text" id="x-admin-firstname" placeholder="Firstname" class="form-control"
+                           required="required"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label id="x-admin-lastname" class="control-label col-sm-2">Lastname:</label>
+            <div class="col-md-5">
+                <div class="input-group">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-edit"></span></div>
+                    <input type="text" id="x-admin-lastname" placeholder="Lastname" class="form-control"
+                           required="required"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label id="x-admin-username" class="control-label col-sm-2">Username:</label>
+            <div class="col-md-5">
+                <div class="input-group">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-edit"></span></div>
+                    <input type="text" id="x-admin-username" placeholder="Username" class="form-control"
+                           required="required"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label id="x-admin-email" class="control-label col-sm-2">E-mail:</label>
+
+            <div class="col-md-5">
+                <div class="input-group">
+                    <div class="input-group-addon">@</div>
+                    <input type="email" id="x-admin-email" placeholder="Email" class="form-control"
+                           required="required"/>
+                </div>
+
+            </div>
+        </div>
+        <div class="form-group">
+            <label id="x-admin-repeat-email" class="control-label col-sm-2">Repeat E-mail:</label>
+            <div class="col-md-5">
+                <div class="input-group">
+                    <div class="input-group-addon">@</div>
+                    <input type="email" id="x-admin-repeat-email" placeholder="Repeat email" class="form-control"
+                           required="required"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label id="x-admin-password" class="control-label col-sm-2">Password:</label>
+            <div class="col-md-5">
+                <div class="input-group">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></div>
+                    <input type="password" id="x-admin-password" placeholder="Password" class="form-control"
+                           required="required"/>
+                </div>
+
+            </div>
+        </div>
+        <div class="form-group">
+            <label id="x-admin-repeat-password" class="control-label col-sm-2">Repeat password:</label>
+            <div class="col-md-5">
+                <div class="input-group">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></div>
+                    <input type="text" id="x-admin-repeat-password" placeholder="Repeat password" class="form-control"
+                           required="required"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-md-5">
+                <button type="submit" class="btn btn-primary" id="x-admin-submit">Submit</button>
+                <button type="reset" class="btn btn-default" id="x-admin-reset">Reset</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

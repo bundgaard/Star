@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/dist/css/bootstrap.min.css') }}"/>
+    <script src="{{ url_for('static', filename='jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='knockout/dist/knockout.debug.js') }}"></script>
+</head>
+<body>
+<script>
+    ko.bindingHandlers.showModal = {
+        init: function(element, valueAccessor){
+
+        },
+        update: function(element, valueAccessor){
+            var value = valueAccessor();
+            if(ko.utils.unwrapObservable(value)){
+                $(element).modal('show');
+                // $("input", element).focus();
+
+            } else {
+                $(element).modal('hide');
+            }
+        }
+    };//endOfShowModalHandler
+    function saveItem(data) {
+        var self = this;
+        self.ID = ko.observable(data._id);
+        self.Name = ko.observable(data.name);
+    }
+    function ItemViewModel() {
+        var self = this;
+        self.ID = ko.observable("");
+        self.Name = ko.observable("");
+
+        var Item = {
+            ID: self.ID,
+            Name: self.Name
+
+        };
+
+        self.Item = ko.observable();
+        self.Items = ko.observableArray();
+
+        $.getJSON({
+            url: '/api/v1/scientists',
+            method: 'GET',
+            data: {},
+            contentType: 'application/json',
+            success: function (data) {
+                var items = data.scientists;
+                $.each(items, function (idx, elm, array) {
+                    self.Items.push(new saveItem(elm));
+                });
+            }
+        }).fail(function (xhr, status, err) {
+            console.log(err);
+        });
+        self.newItem = function () {
+            if (self.Name !== '') {
+                $.ajax('/api/v1/scientists', {
+                    data: ko.toJSON({name: self.Name}),
+                    method: "POST",
+                    contentType: "application/json",
+                    success: function (result) {
+                        self.Items.push(new saveItem(result.scientists));
+                    }
+                }).fail(function (xhr, status, err) {
+                    console.log(err);
+                });
+            }
+
+
+        };
+        self.deleteItem = function (item) {
+            $.ajax({
+                url: '/api/v1/scientists/' + item.ID(),
+                method: 'DELETE',
+                contentType: 'application/json',
+                data: {},
+                success: function (result) {
+                    self.Items.remove(item);
+                }
+            }).fail(function (xhr, status, err) {
+            });
+        };
+    }
+
+    function initModal(){
+        $("#x-modal").on("show.bs.modal", function(event){
+            var button = $(event.relatedTarget);
+            console.log(button);
+            var action = button.data('action');
+            console.log(action);
+            var modal = $(this);
+            console.log(modal);
+        });// endOfOnXModal
+    } // endOfInitModal
+
+    $(document).ready(function () {
+        $("#new_item").unbind().click(function(){
+            var modal = $("#x-modal");
+            modal.find(".modal-body").children().remove();
+            var form = "<form name='x-modal-form' method='POST'>";
+            form += "<label for='x-modal-name' class='control-label'>Name:</label>";
+            form += "<input type='text' data-bind='value: Name' class='form-control' id='x-modal-name' />";
+            form += "</form>";
+            $(form).appendTo(modal.find(".modal-body"));
+            $(".modal-title").data('bind','text: Name');
+            var saveButton = modal.find(".x-save");
+            saveButton.unbind().click(function(){
+                console.log("Saving new entry", modal.find("#x-modal-name").val());
+
+                $("#x-modal").modal('toggle');
+            });
+            $("#x-modal").modal('toggle');
+        });
+        //initModal();
+        ko.applyBindings(new ItemViewModel());
+    });
+</script>
+<div id="x-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                <h4 class="modal-title">Title</h4>
+            </div>
+            <div class="modal-body">
+                <p>Body</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary x-save">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <form data-bind="submit: newItem" class="form">
+            <label class="col-sm-2" for="x-name">Name:</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" data-bind="value: Name" placeholder="Name"/>
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+        </form>
+    </div>
+    <div class="row">
+        <h1>Items (<span data-bind="text: Items().length"></span>)</h1>
+        <button class="btn btn-primary" id="new_item" >New Item</button>
+        <div class="col-md-8">
+            <table class="table table-striped" data-bind="visible: Items().length > 0">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                </tr>
+                </thead>
+                <tbody data-bind="foreach: Items">
+
+                <tr>
+                    <td data-bind="text: ID"></td>
+                    <td data-bind="text: Name"></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" data-bind="click: $root.updateItem"><span
+                                class="glyphicon glyphicon-pencil"></span></button>
+                        &nbsp;
+                        <button class="btn btn-sm btn-danger" data-bind="click: $root.deleteItem"><span
+                                class="glyphicon glyphicon-trash"></span></button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

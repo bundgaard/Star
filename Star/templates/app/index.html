@@ -1,0 +1,182 @@
+{% extends 'layout.html' %}
+{% block sidebar %}
+    {% if username %}
+    <p>Logged in as:&nbsp;<small>{{ username }}</small></p>
+    {% endif %}
+    <div class="list-group">
+        <button class="list-group-item" data-action="add" data-toggle="modal" data-target="#x-modal">Add new</button>
+        <button class="list-group-item" data-action="logout" id="x-btn-logout">Logout</button>
+    </div>
+{% endblock %}
+
+{% block prebody %}
+    <div id='x-modal' class="modal fade" role="dialog" tabindex="-1">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Modal Title</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form">
+                        <div class="form-group">
+                            <label for="name" class="control-label">Name:</label>
+                            <input type="text" id="x-modal-name" class="form-control" required="required" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="x-modal-save">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block body %}
+    {% with messages = get_flashed_messages() %}
+    {% if messages  %}
+    <div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close" aria-hidden="true">&times;</button>
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="row">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="table-contents">
+            <tr>
+                <td colspan="2">Nothing found.</td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+    <script>
+        $(document).ready(function () {
+            load();
+            initModal();
+            $("#x-btn-logout").unbind().click(function(){
+                window.location.href= "/" + $(this).data('action');
+            })
+
+        }); // endOfDocumentReady
+        //https://github.com/cescoffier/my-vertx-first-app/blob/post-3/src/main/resources/assets/index.html
+        function load() {
+            $("#table-contents").children().remove(); // remove all content from table
+            $.ajax({url: "/api/v1/scientists/", contentType:"application/json"}).done(function (data) {
+                if (data.scientists.length > 0) {
+                    $.each(data.scientists, function (idx, val, array) {
+                        $("<tr>" +
+                                "<td>" + val._id + "</td>"+
+                                "<td>" + val.name + "</td>" +
+                                "<td>" +
+                                "<button class='btn btn-sm btn-primary x-edit' " +
+                                "data-action='edit' " +
+                                "data-target='#x-modal' " +
+                                "data-toggle='modal' data-id='" + val._id + "' " +
+                                "data-name='" + val.name + "'>" +
+                                "<span class='glyphicon glyphicon-pencil'></span>" +
+                                "</button>&nbsp;" +
+                                "<button class='btn btn-sm btn-danger x-delete' data-id='" + val._id + "'>" +
+                                "<span class='glyphicon glyphicon-trash'></span>" +
+                                "</button>" +
+                                "</td></tr>").appendTo("#table-contents");
+                    }); // endofEach
+                } else {
+                    $("<tr><td colspan='3'>Nothing found</td></tr>").appendTo("#table-contents");
+                }
+                initCallbacks();
+
+            });// endofAjax.Done
+        }
+
+
+        function create(name){
+            var json_post_request = JSON.stringify({"name": name});
+            $.ajax({
+                url: '/api/v1/scientists',
+                method: 'POST',
+                contentType: 'application/json',
+                data: json_post_request
+            }).done(function(){
+                load();
+            });
+
+        }
+
+        function remove(scientist_id) {
+            $.ajax({
+                method: 'DELETE',
+                url: '/api/v1/scientists/' + scientist_id
+            }).done(function () {
+                load();
+            });
+
+        }
+        function update(scientist_id, name){
+
+            json_put_request = JSON.stringify({'name': name});
+            $.ajax({
+
+                url: '/api/v1/scientists/' + scientist_id,
+                method: 'PUT',
+                data: json_put_request,
+                contentType: 'application/json'
+            }).done(function(){
+                load();
+            }).fail(function(event){
+                console.log("Failed", event)
+            });
+        }
+        function initModal() {
+            $("#x-modal").on('shown.bs.modal', function (event) {
+
+                var button = $(event.relatedTarget);
+                var action = button.data('action');
+                var id = button.data('id');
+
+                var modalAction = $("#x-modal-save");
+                modalAction.unbind();
+                var modal = $(this);
+                modal.find("#x-modal-name").focus();
+                if (action === "add") {
+                    modal.find('.modal-title').text("Add new scientist");
+                    modal.find("#x-modal-name").val("");
+                    modalAction.click(function () {
+                        create(modal.find("#x-modal-name").val());
+                        $("#x-modal").modal('toggle');
+                    });//endOfmodalActionSaveButton
+
+                } else if (action === "edit") {
+                    modal.find('.modal-title').text('Edit');
+                    modal.find("#x-modal-name").val(button.data('name'));
+                    modalAction.click(function () {
+                        update(id, modal.find("#x-modal-name").val());
+                        $("#x-modal").modal('toggle');
+                    });//endOfModalActionSaveButton
+                }
+
+            }); // endOfOnShownBsModal
+
+        }
+        function initCallbacks() {
+            $('.x-delete').unbind().click(function () {
+                var id = $(this).data("id");
+                remove(id)
+            });
+        }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{
+  "name": "Star",
+  "authors": [
+    "David <dapoman@gmail.com>"
+  ],
+  "description": "CRUD Application with API from Flask",
+  "main": "Star.py",
+  "moduleType": [],
+  "license": "CSA",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "3.3.6"
+  }
+}

@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+{% block prebody %}
+{% endblock %}
+
+{% block body %}
+    {% with messages = get_flashed_messages() %}
+    {% if messages  %}
+    <div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close" aria-hidden="true">&times;</button>
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    <form name="x-login" action="{{ url_for('login') }}" method="post" class="form-horizontal">
+        <div class="form-group">
+            <label class="col-xs-2 control-label" for="x-username">Username:</label>
+            <div class="col-xs-6">
+                <input type="text" class="form-control" placeholder="Username" id="x-username" name="x-username" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-2 control-label" for="x-password">Password:</label>
+            <div class="col-xs-6">
+                <input type="password" class="form-control" placeholder="Password" id="x-password" name="x-password" />
+            </div>
+        </div>
+        <div class="col-xs-offset-2 col-xs-6">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="reset" class="btn btn-default">Reset</button>
+        </div>
+    </form>
+{% endblock %}
